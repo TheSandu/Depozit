@@ -17,3 +17,4 @@ include 'Unites/deposite/Deposite.php';
 include 'Unites/models/Models.php';
 include 'Unites/types/Types.php';
 include 'Unites/users/Users.php';
+include 'Unites/logs/Logs.php';

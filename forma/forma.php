@@ -177,8 +177,24 @@
 
 		window.print();
 		window.onafterprint = function(){
-			let parameters = window.location.search.replace("?","");
-			result.inserUnite("/API/api.php", , function (json)
+			var search = location.search.substring(1);
+			parsedUrl = JSON.parse('{"' + decodeURI(search).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}');
+			parsedTable = JSON.parse(parsedUrl.tabeleJson);
+			parsedOptions = JSON.parse(parsedUrl.options);
+
+			var xhr = new XMLHttpRequest();
+
+			for (let index = 0; index < parsedTable.length; index++) {
+				xhr.open("POST", '/ajax/formControl/insertLogs.php', true);
+				xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+				xhr.onreadystatechange = function() {
+					if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+						console.log(this.responseText);
+					}
+				}
+
+				xhr.send(`biroul=${parsedOptions.biroul}&depozitul=${parsedOptions.depozitul}&destinatarul=${parsedOptions.destinatarul}&gestionar=${parsedOptions.gestionar}&nr_depozit=${parsedOptions.nrDepozit}&denumirea=${parsedTable[index].denumirea}&eliberat=${parsedTable[index].eliberat}&masura=${parsedTable[index].masura}&pretul=${parsedTable[index].pretul}&solicitat=${parsedTable[index].solicitat}`); 
+			}
 		};
 
 		document.body.innerHTML = originalContents;

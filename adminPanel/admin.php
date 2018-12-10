@@ -17,6 +17,7 @@ $Catedre = new Catedre();
 $Birouri = new Birouri();
 $Depozite = new Depozite();
 $Users = new Users();
+$Logs = new Logs();
 
 
 if ( isset( $_POST['submitModel'] ) )
@@ -101,6 +102,48 @@ if ( isset( $_POST['excelButt'] ))
 	}
 }
 
+if ( isset( $_POST['insertUserButt'] )) 
+{
+	$DB->execute("SET FOREIGN_KEY_CHECKS=0;");
+	$DB->insert( 'users', ["username", "name", "password", "users_role_id"] )
+		->values( [$_POST['insertUserLogin'], $_POST['insertUserName'], $_POST['insertUserPass'], $_POST['insertUserRole'] ] )
+		->execute();
+}
+
+if ( isset( $_POST['modifyUserButt'] )) 
+{
+
+	$DB->execute("SET FOREIGN_KEY_CHECKS=0;");
+
+	$modifyValues = [];
+		if( $_POST['modifyUserLogin'] )
+			$modifyValues['username'] = $_POST['modifyUserLogin'];
+
+		if( $_POST['modifyUserName'] )
+			$modifyValues['name'] = $_POST['modifyUserName'];
+
+		if( $_POST['modifyUserPass'] )
+			$modifyValues['password'] = md5($_POST['modifyUserPass']);
+
+		if( $_POST['modifyUserRole'] )
+			$modifyValues['users_role_id'] = $_POST['modifyUserRole'];
+
+		if( $_POST["modifyUserId"][0] )
+			$DB->update( 'users' )
+				->set( $modifyValues )
+				->where( "users_id = " . $_POST["modifyUserId"][0] )
+				->execute();
+}
+
+if ( isset( $_POST['deleteUserButt'] )) 
+{
+	$DB->execute("SET FOREIGN_KEY_CHECKS=0;");
+	if( $_POST["deleteUserId"][0] )
+		$DB->delete( 'users' )
+			->where( "users_id = " . $_POST["deleteUserId"][0] )
+			->execute();
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en" style=" height: 100%;">
@@ -129,6 +172,7 @@ if ( isset( $_POST['excelButt'] ))
 			<a href="#" data-page='2' class="list-group-item page-list">Introduce Catedre</a>
 			<a href="#" data-page='3' class="list-group-item page-list">Utilizatori</a>
 			<a href="#" data-page='4' class="list-group-item page-list">Printeaza bon</a>
+			<a href="#" data-page='5' class="list-group-item page-list">Raport</a>
 		</div>
 	</div>
 	<div class="col-md-4 page" >
@@ -219,31 +263,52 @@ if ( isset( $_POST['excelButt'] ))
 					</select>
 				</div>
 				<div class="form-group">
-					<input name="catedreName" type="text" placeholder="Anul" class="form-control">
+					<input name="catedreName" type="text" placeholder="Denumirea" class="form-control">
 				</div>
 				<input type="submit" name="catedreButt" class="btn btn-primary" value="Submit">
 			</form>
 		</div>
 	</div>
 	<div class="col-md-6 page" style="display: none">
-		<div class="col-md-3">
-			<h3>Introducerea utilizatorului</h3>
-			<hr>
-		</div>
-		<div class="col-md-3">
-			<h3>Modificarea utilizatorului</h3>
-			<hr>
-			<select class="form-control selectpicker" data-live-search="true" data-size="5" multiple>
-				<?= $Users->getAllUsersAsOptions( $DB );?>
-			</select>
-		</div>
-		<div class="col-md-3">
-			<h3>Stergerea utilizatorului</h3>
-			<hr>
-			<select class="form-control selectpicker" data-live-search="true" data-size="5" multiple>
-				<?= $Users->getAllUsersAsOptions( $DB );?>
-			</select>
-		</div>
+		<form action="admin.php"  method="post">
+			<div class="col-md-3">
+				<h3>Introducerea utilizatorului</h3>
+				<hr>
+				<input name="insertUserLogin" class="form-control" type="text" placeholder="login">
+				<input name="insertUserName" class="form-control" type="text" placeholder="Nume">
+				<input name="insertUserPass" class="form-control" type="password" placeholder="Password">
+				<select name="insertUserRole" class="form-control">
+					<?= $Users->getAllUsersRoleAsOptions( $DB );?>
+				</select>
+				<input name="insertUserButt" type="submit" class="btn btn-info" value="Submit">
+			</div>
+		</form>
+		<form action="admin.php" method="post">
+			<div class="col-md-3">
+				<h3>Modificarea utilizatorului</h3>
+				<hr>
+				<select name="modifyUserId" class="form-control selectpicker" data-live-search="true" data-size="5" multiple>
+					<?= $Users->getAllUsersAsOptions( $DB );?>
+				</select>
+				<input name="modifyUserLogin" class="form-control" type="text" placeholder="Login">
+				<input name="modifyUserName" class="form-control" type="text" placeholder="Name">
+				<input name="modifyUserPass" class="form-control" type="password" placeholder="Password">
+				<select name="modifyUserRole" class="form-control">
+					<?= $Users->getAllUsersRoleAsOptions( $DB );?>
+				</select>
+				<input name="modifyUserButt" type="submit" class="btn btn-info" value="Submit">
+			</div>
+		</form>
+		<form action="admin.php" method="post">
+			<div class="col-md-3">
+				<h3>Stergerea utilizatorului</h3>
+				<hr>
+				<select name="deleteUserId" class="form-control selectpicker" data-live-search="true" data-size="5" multiple>
+					<?= $Users->getAllUsersAsOptions( $DB );?>
+				</select>
+				<input name="deleteUserButt" type="submit" class="btn btn-info" value="Submit">				
+			</div>
+		</form>
 	</div>
 	<div class="col-md-6 page" style="display: none">
 		<h3>Printarea bonurilor</h3>
@@ -285,6 +350,11 @@ if ( isset( $_POST['excelButt'] ))
 				<th>count</th>
 			</thead>
 			<tbody id="selectedResult"></tbody>
+		</table>
+	</div>
+	<div class="page" style="display: none">
+		<table class="table">
+			<?=$Logs->getAllLogsAsTable( $DB );?>
 		</table>
 	</div>
 </body>

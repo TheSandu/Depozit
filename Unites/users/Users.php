@@ -15,6 +15,18 @@ class Users
 		return $users;
 	}
 
+	
+	public function optionFromRoleArray( $role )
+	{
+		$options = "";
+
+		for ($i = 0, $roleCount = count($role); $i < $roleCount; $i++) { 
+			$options .= "<option value=" . $role[$i]['users_role'] . ">" .$role[$i]['name'] ."</option>";
+		}
+
+		return $options;
+	}
+
 	public function optionFromUsersArray( $users )
 	{
 		$options = "";
@@ -39,4 +51,21 @@ class Users
 		   ->values( $values )
 		   ->execute();
 	}
+
+	public function getAllUsersRole( $DB )
+	{
+		$role = $DB->select(["*"])
+				     ->from("users_role")
+				     ->execute();
+
+		return $role;
+	}
+
+	public function getAllUsersRoleAsOptions( $DB )
+	{
+		$role = $this->getAllUsersRole( $DB );
+
+		return $this->optionFromRoleArray( $role );
+	}
+
 }

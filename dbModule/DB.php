@@ -98,7 +98,7 @@ class DB
 		}
 		else
 		{
-			echo $this->mysql->error;
+			// echo $this->mysql->error;
 			return false;
 		}
 	}
@@ -262,8 +262,13 @@ class DB
 		return $this;
 	}
 
-	public function execute()
+	public function execute( $executeSql = "" )
 	{
+
+		if( $executeSql != ""){
+			$this->mysql->query( $executeSql );
+		}
+
 		$this->SqlExpresion .= ";";
 
 		switch ($this->expresionInUse)
